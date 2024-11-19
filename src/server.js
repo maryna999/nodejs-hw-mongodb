@@ -15,10 +15,6 @@ export const setupServer = () => {
     res.json({ message: 'Hello Mentor!' });
   });
 
-  app.use('*', (req, res) => {
-    res.status(404).json({ message: 'Not found' });
-  });
-
   app.get('/contacts', async (req, res) => {
     const contacts = await getAllContacts();
     res.status(200).json({
@@ -41,6 +37,10 @@ export const setupServer = () => {
       message: `Successfully found contact with id ${contactId}!`,
       data: contact,
     });
+  });
+
+  app.use('*', (req, res) => {
+    res.status(404).json({ message: 'Not found' });
   });
 
   app.listen(PORT, () => {
