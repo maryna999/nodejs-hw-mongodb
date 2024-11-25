@@ -1,30 +1,25 @@
-// src/services/contacts.js
+import { ContactsCollection } from '../db/models/contact.js';
 
-import { ContactsCollection } from '../db/models/contact.js'; // Імпортуємо модель
-
-// Функція для створення нового контакту в базі даних
 export const createContactInDB = async ({
   name,
   phoneNumber,
   email,
-  isFavourite,
+  isFavorite,
   contactType,
 }) => {
   const newContact = new ContactsCollection({
     name,
     phoneNumber,
     email,
-    isFavourite,
+    isFavorite,
     contactType,
   });
 
-  // Зберігаємо новий контакт у базі даних
   await newContact.save();
 
   return newContact;
 };
 
-// Функція для оновлення контакту
 export const updateContactInDB = async (contactId, updateData) => {
   const updatedContact = await ContactsCollection.findByIdAndUpdate(
     contactId,
@@ -35,19 +30,18 @@ export const updateContactInDB = async (contactId, updateData) => {
   return updatedContact;
 };
 
-// Функції для отримання контактів
 export const getAllContacts = async () => {
-  return await ContactsCollection.find(); // Повертаємо всі контакти
+  return await ContactsCollection.find();
 };
 
 export const getContactById = async (contactId) => {
-  return await ContactsCollection.findById(contactId); // Повертаємо контакт за ID
+  return await ContactsCollection.findById(contactId);
 };
 
 export const deleteContactFromDB = async (contactId) => {
-  const result = await ContactsCollection.findByIdAndDelete(contactId); // Видаляємо контакт за ID
+  const result = await ContactsCollection.findByIdAndDelete(contactId);
   if (!result) {
-    throw new Error('Contact not found'); // Якщо контакт не знайдений, викидаємо помилку
+    throw new Error('Contact not found');
   }
-  return result; // Повертаємо результат видалення
+  return result;
 };

@@ -1,20 +1,16 @@
-// src/controllers/contacts.js
-
 import createError from 'http-errors';
 import {
   getAllContacts,
   getContactById,
-  createContactInDB, // Сервіс для створення контакту
+  createContactInDB,
   updateContactInDB,
-  deleteContactFromDB, // Сервіс для оновлення контакту
-} from '../services/contacts.js'; // Імпортуємо всі необхідні сервіси
+  deleteContactFromDB,
+} from '../services/contacts.js';
 
-// Контролер для створення нового контакту
 export const createContact = async (req, res, next) => {
   try {
-    const { name, phoneNumber, email, isFavourite, contactType } = req.body;
+    const { name, phoneNumber, email, isFavorite, contactType } = req.body;
 
-    // Перевірка на обов'язкові поля
     if (!name || !phoneNumber || !contactType) {
       throw createError(
         400,
@@ -22,12 +18,11 @@ export const createContact = async (req, res, next) => {
       );
     }
 
-    // Створення нового контакту через сервіс
     const newContact = await createContactInDB({
       name,
       phoneNumber,
       email,
-      isFavourite,
+      isFavorite,
       contactType,
     });
 
@@ -37,56 +32,53 @@ export const createContact = async (req, res, next) => {
       data: newContact,
     });
   } catch (error) {
-    next(error); // Передаємо помилку в middleware для обробки помилок
+    next(error);
   }
 };
 
-// Контролер для отримання всіх контактів
 export const getContacts = async (req, res, next) => {
   try {
-    const contacts = await getAllContacts(); // Викликаємо сервіс для отримання всіх контактів
+    const contacts = await getAllContacts();
     res.status(200).json({
       status: 200,
-      message: 'Successfully retrieved contacts!',
+      message: 'Successfully found contacts!',
       data: contacts,
     });
   } catch (error) {
-    next(error); // Передаємо помилку в middleware для обробки помилок
+    next(error);
   }
 };
 
-// Контролер для отримання одного контакту за ID
 export const getContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await getContactById(contactId); // Викликаємо сервіс для отримання контакту за ID
+    const contact = await getContactById(contactId);
 
     if (!contact) {
-      throw createError(404, 'Contact not found'); // Якщо контакт не знайдено, кидаємо помилку
+      throw createError(404, 'Contact not found');
     }
 
     res.status(200).json({
       status: 200,
-      message: `Successfully retrieved contact with ID ${contactId}`,
+      message: `Successfully found contact with ID ${contactId}`,
       data: contact,
     });
   } catch (error) {
-    next(error); // Передаємо помилку в middleware для обробки помилок
+    next(error);
   }
 };
 
-// Контролер для оновлення контакту
 export const updateContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const updateData = req.body;
 
-    const contact = await getContactById(contactId); // Перевіряємо, чи існує контакт
+    const contact = await getContactById(contactId);
     if (!contact) {
-      throw createError(404, 'Contact not found'); // Створюємо помилку, якщо контакт не знайдений
+      throw createError(404, 'Contact not found');
     }
 
-    const updatedContact = await updateContactInDB(contactId, updateData); // Оновлюємо контакт
+    const updatedContact = await updateContactInDB(contactId, updateData);
 
     res.status(200).json({
       status: 200,
@@ -94,26 +86,23 @@ export const updateContact = async (req, res, next) => {
       data: updatedContact,
     });
   } catch (error) {
-    next(error); // Передаємо помилку в middleware для обробки помилок
+    next(error);
   }
 };
 
 export const deleteContact = async (req, res, next) => {
   try {
-    const { contactId } = req.params; // Отримуємо ID контакту з параметрів
+    const { contactId } = req.params;
 
-    // Перевірка, чи контакт існує
     const contact = await getContactById(contactId);
     if (!contact) {
-      throw createError(404, 'Contact not found'); // Створюємо помилку, якщо контакт не знайдений
+      throw createError(404, 'Contact not found');
     }
 
-    // Видалення контакту з бази даних
     await deleteContactFromDB(contactId);
 
-    // Відповідь без тіла і зі статусом 204
     res.status(204).send();
   } catch (error) {
-    next(error); // Передаємо помилку в middleware для обробки помилок
+    next(error);
   }
 };
