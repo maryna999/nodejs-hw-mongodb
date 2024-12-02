@@ -1,5 +1,3 @@
-import createError from 'http-errors';
-
 export const errorHandler = (err, req, res, next) => {
   console.error(err);
 

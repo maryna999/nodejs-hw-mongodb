@@ -1,11 +1,11 @@
 import createError from 'http-errors';
 import {
-  getAllContacts,
   getContactById,
   createContactInDB,
   updateContactInDB,
   deleteContactFromDB,
 } from '../services/contacts.js';
+import { ContactsCollection } from '../db/models/contact.js';
 
 export const createContact = async (req, res, next) => {
   try {
@@ -38,11 +38,41 @@ export const createContact = async (req, res, next) => {
 
 export const getContacts = async (req, res, next) => {
   try {
-    const contacts = await getAllContacts();
+    const {
+      sortBy = 'name',
+      sortOrder = 'asc',
+      page = 1,
+      perPage = 10,
+      type,
+      isFavorite,
+    } = req.query;
+
+    const filter = {};
+    if (type) filter.contactType = type;
+    if (isFavorite !== undefined) filter.isFavorite = isFavorite === 'true';
+
+    const order = sortOrder.toLowerCase() === 'desc' ? -1 : 1;
+
+    const skip = (page - 1) * perPage;
+
+    const totalItems = await ContactsCollection.countDocuments(filter);
+    const contacts = await ContactsCollection.find(filter)
+      .sort({ [sortBy]: order })
+      .skip(skip)
+      .limit(Number(perPage));
+
     res.status(200).json({
       status: 200,
       message: 'Successfully found contacts!',
-      data: contacts,
+      data: {
+        data: contacts,
+        page: Number(page),
+        perPage: Number(perPage),
+        totalItems,
+        totalPages: Math.ceil(totalItems / perPage),
+        hasPreviousPage: page > 1,
+        hasNextPage: skip + contacts.length < totalItems,
+      },
     });
   } catch (error) {
     next(error);
