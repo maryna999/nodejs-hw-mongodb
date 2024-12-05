@@ -10,6 +10,7 @@ import { ContactsCollection } from '../db/models/contact.js';
 export const createContact = async (req, res, next) => {
   try {
     const { name, phoneNumber, email, isFavorite, contactType } = req.body;
+    const { _id: userId } = req.user;
 
     if (!name || !phoneNumber || !contactType) {
       throw createError(
@@ -24,6 +25,7 @@ export const createContact = async (req, res, next) => {
       email,
       isFavorite,
       contactType,
+      userId,
     });
 
     res.status(201).json({
@@ -38,41 +40,20 @@ export const createContact = async (req, res, next) => {
 
 export const getContacts = async (req, res, next) => {
   try {
-    const {
-      sortBy = 'name',
-      sortOrder = 'asc',
-      page = 1,
-      perPage = 10,
-      type,
-      isFavorite,
-    } = req.query;
+    const { _id: userId } = req.user;
+    const { sortBy = 'name', sortOrder = 'asc', type, isFavorite } = req.query;
 
-    const filter = {};
+    const filter = { userId };
     if (type) filter.contactType = type;
     if (isFavorite !== undefined) filter.isFavorite = isFavorite === 'true';
 
     const order = sortOrder.toLowerCase() === 'desc' ? -1 : 1;
-
-    const skip = (page - 1) * perPage;
-
-    const totalItems = await ContactsCollection.countDocuments(filter);
-    const contacts = await ContactsCollection.find(filter)
-      .sort({ [sortBy]: order })
-      .skip(skip)
-      .limit(Number(perPage));
+    const contacts = await ContactsCollection(filter, sortBy, order);
 
     res.status(200).json({
       status: 200,
       message: 'Successfully found contacts!',
-      data: {
-        data: contacts,
-        page: Number(page),
-        perPage: Number(perPage),
-        totalItems,
-        totalPages: Math.ceil(totalItems / perPage),
-        hasPreviousPage: page > 1,
-        hasNextPage: skip + contacts.length < totalItems,
-      },
+      data: contacts,
     });
   } catch (error) {
     next(error);
@@ -101,18 +82,23 @@ export const getContact = async (req, res, next) => {
 export const updateContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
+    const { _id: userId } = req.user;
     const updateData = req.body;
 
-    const contact = await getContactById(contactId);
+    const contact = await getContactById(contactId, userId);
     if (!contact) {
       throw createError(404, 'Contact not found');
     }
 
-    const updatedContact = await updateContactInDB(contactId, updateData);
+    const updatedContact = await updateContactInDB(
+      contactId,
+      updateData,
+      userId,
+    );
 
     res.status(200).json({
       status: 200,
-      message: 'Successfully patched a contact!',
+      message: 'Successfully updated the contact!',
       data: updatedContact,
     });
   } catch (error) {
@@ -123,13 +109,14 @@ export const updateContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
+    const { _id: userId } = req.user;
 
-    const contact = await getContactById(contactId);
+    const contact = await getContactById(contactId, userId);
     if (!contact) {
       throw createError(404, 'Contact not found');
     }
 
-    await deleteContactFromDB(contactId);
+    await deleteContactFromDB(contactId, userId);
 
     res.status(204).send();
   } catch (error) {

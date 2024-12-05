@@ -20,26 +20,27 @@ export const createContactInDB = async ({
   return newContact;
 };
 
-export const updateContactInDB = async (contactId, updateData) => {
-  const updatedContact = await ContactsCollection.findByIdAndUpdate(
-    contactId,
+export const getAllContacts = async (filter, sortBy, order) => {
+  return await ContactsCollection.find(filter).sort({ [sortBy]: order });
+};
+
+export const getContactById = async (contactId, userId) => {
+  return await ContactsCollection.findOne({ _id: contactId, userId });
+};
+
+export const updateContactInDB = async (contactId, updateData, userId) => {
+  return await ContactsCollection.findOneAndUpdate(
+    { _id: contactId, userId },
     { ...updateData },
     { new: true },
   );
-
-  return updatedContact;
 };
 
-export const getAllContacts = async () => {
-  return await ContactsCollection.find();
-};
-
-export const getContactById = async (contactId) => {
-  return await ContactsCollection.findById(contactId);
-};
-
-export const deleteContactFromDB = async (contactId) => {
-  const result = await ContactsCollection.findByIdAndDelete(contactId);
+export const deleteContactFromDB = async (contactId, userId) => {
+  const result = await ContactsCollection.findOneAndDelete({
+    _id: contactId,
+    userId,
+  });
   if (!result) {
     throw new Error('Contact not found');
   }
