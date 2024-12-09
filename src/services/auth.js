@@ -40,17 +40,18 @@ export const authenticateUser = async (email, password) => {
 
   await Session.deleteOne({ userId: user._id });
 
-  const accessToken = jwt.sign(
-    { id: user._id },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: '15m' },
-  );
+  const accessTokenSecret =
+    '45f10e4c8e7a64e7a87f36a8b96c6e7f1c8f7497d84f01d3efc8f48e8f3e1c7e';
+  const refreshTokenSecret =
+    'e7b84f8f93a74e7f16c7495e8f81d3e7a8b8f4f48f6e93a84f1c4b8e5f3e1d7f';
 
-  const refreshToken = jwt.sign(
-    { id: user._id },
-    process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: '30d' },
-  );
+  const accessToken = jwt.sign({ id: user._id }, accessTokenSecret, {
+    expiresIn: '15m',
+  });
+
+  const refreshToken = jwt.sign({ id: user._id }, refreshTokenSecret, {
+    expiresIn: '30d',
+  });
 
   const accessTokenValidUntil = new Date(Date.now() + 15 * 60 * 1000);
   const refreshTokenValidUntil = new Date(
