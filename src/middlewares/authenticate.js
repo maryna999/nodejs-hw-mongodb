@@ -19,6 +19,7 @@ export const authenticate = async (req, res, next) => {
       if (error.name === 'TokenExpiredError') {
         throw createHttpError(401, 'Access token expired');
       }
+
       throw createHttpError(401, 'Invalid access token');
     }
 

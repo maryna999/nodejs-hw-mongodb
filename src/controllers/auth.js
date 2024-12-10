@@ -57,6 +57,7 @@ export const loginUser = async (req, res, next) => {
 export const refreshSession = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
+    console.log('Refresh token:', refreshToken);
 
     if (!refreshToken) {
       throw createError(401, 'No refresh token provided');
@@ -79,6 +80,7 @@ export const refreshSession = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.error('Error in refreshSession:', error);
     next(error);
   }
 };

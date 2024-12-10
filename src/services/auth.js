@@ -73,11 +73,14 @@ export const renewSession = async (refreshToken) => {
   let payload;
   try {
     payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-  } catch {
+    console.log('Payload decoded:', payload);
+  } catch (err) {
+    console.error('Token verification failed:', err);
     throw createError(401, 'Invalid or expired refresh token');
   }
 
   const userId = payload.id;
+  console.log('User ID from payload:', userId);
 
   const existingSession = await Session.findOne({ userId, refreshToken });
   if (!existingSession) {

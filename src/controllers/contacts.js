@@ -48,7 +48,9 @@ export const getContacts = async (req, res, next) => {
     if (isFavorite !== undefined) filter.isFavorite = isFavorite === 'true';
 
     const order = sortOrder.toLowerCase() === 'desc' ? -1 : 1;
-    const contacts = await ContactsCollection(filter, sortBy, order);
+    const contacts = await ContactsCollection.find(filter).sort({
+      [sortBy]: order,
+    });
 
     res.status(200).json({
       status: 200,
@@ -63,7 +65,7 @@ export const getContacts = async (req, res, next) => {
 export const getContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await getContactById(contactId);
+    const contact = await getContactById(contactId, req.user._id);
 
     if (!contact) {
       throw createError(404, 'Contact not found');
