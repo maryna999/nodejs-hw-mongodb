@@ -1,12 +1,15 @@
-import createError from 'http-errors';
+import { body, validationResult } from 'express-validator';
 
-export const validateBody = (schema) => {
-  return (req, res, next) => {
-    const { error } = schema.validate(req.body, { abortEarly: false });
-    if (error) {
-      const errors = error.details.map((detail) => detail.message).join(', ');
-      return next(createError(400, `Validation error: ${errors}`));
+export const validateBody = (schema) => [
+  body('email').isEmail().withMessage('Invalid email format'),
+  body('password').notEmpty().withMessage('Password is required'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
+
     next();
-  };
-};
+  },
+];
