@@ -11,7 +11,7 @@ export const validateCookies = async (req, res, next) => {
 
     const session = await Session.findOne({ refreshToken });
 
-    if (!session || session.refreshTokenValidUntil < Date.now()) {
+    if (!session || session.refreshTokenValidUntil > Date.now()) {
       throw createHttpError(401, 'Invalid or expired refresh token');
     }
 

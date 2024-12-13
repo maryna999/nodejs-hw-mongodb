@@ -57,45 +57,19 @@ export const login = async (req, res, next) => {
 
 export const refreshSession = async (req, res, next) => {
   try {
-    const { refreshToken } = req.cookies;
+    const { sessionId } = req.session;
+    await Session.findByIdAndDelete(sessionId);
 
-    if (!refreshToken) {
-      throw createHttpError(401, 'No refresh token found');
-    }
-
-    const session = await Session.findOne({ refreshToken });
-
-    if (!session) {
-      throw createHttpError(401, 'Invalid refresh token');
-    }
-
-    await Session.deleteOne({ _id: session._id });
-
-    const newTokens = generateTokens({ _id: session.userId });
-
-    const newSession = new Session({
-      userId: session.userId,
-      accessToken: newTokens.accessToken,
-      refreshToken: newTokens.refreshToken,
-      accessTokenValidUntil: new Date(Date.now() + 15 * 60 * 1000),
-      refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    });
-
-    await newSession.save();
+    const newTokens = generateTokens(req.session.user);
 
     res.cookie('refreshToken', newTokens.refreshToken, {
       httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 30 * 24 * 60 * 60 * 1000, 
     });
 
-    res.status(200).json({
-      status: 200,
-      message: 'Successfully refreshed a session!',
-      data: {
-        accessToken: newTokens.accessToken,
-      },
-    });
-  } catch (error) {
-    next(error);
+    res.json({ accessToken: newTokens.accessToken });
+  } catch {
+    next(createHttpError(500, 'Error refreshing session'));
   }
 };

@@ -61,8 +61,8 @@ export const refreshSessionService = async (userId) => {
     userId,
     accessToken,
     refreshToken,
-    accessTokenValidUntil: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
-    refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    accessTokenValidUntil: new Date(Date.now() + 15 * 60 * 1000),
+    refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 
   });
 
   await newSession.save();
