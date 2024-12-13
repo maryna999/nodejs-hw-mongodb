@@ -2,7 +2,7 @@ import express from 'express';
 import { registerUser } from '../services/auth.js';
 import { validateBody } from '../middlewares/validateBody.js';
 import { registerSchema } from '../validation/auth.js';
-import { login, refreshSession } from '../controllers/auth.js';
+import { login, refreshSession, logout } from '../controllers/auth.js';
 import { validateCookies } from '../middlewares/validateCookies.js';
 
 const router = express.Router();
@@ -40,5 +40,7 @@ router.post(
 );
 
 router.post('/refresh', validateCookies, refreshSession);
+
+router.post('/logout', validateCookies, logout);
 
 export default router;

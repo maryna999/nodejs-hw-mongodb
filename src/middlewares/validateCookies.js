@@ -4,7 +4,6 @@ import { Session } from '../db/models/session.js';
 export const validateCookies = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
-    console.log(refreshToken);
 
     if (!refreshToken) {
       throw createHttpError(401, 'Refresh token is missing');
@@ -14,9 +13,7 @@ export const validateCookies = async (req, res, next) => {
       refreshToken: req.cookies.refreshToken.toString(),
     });
 
-    console.log('Session found:', session);
-
-    if (!session || session.refreshTokenValidUntil > Date.now()) {
+    if (!session || session.refreshTokenValidUntil < Date.now()) {
       throw createHttpError(401, 'Invalid or expired refresh token');
     }
 
