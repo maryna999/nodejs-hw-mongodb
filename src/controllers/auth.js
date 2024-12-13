@@ -38,6 +38,16 @@ export const login = async (req, res, next) => {
 
     const { accessToken, refreshToken } = generateTokens(user);
 
+    const newSession = new Session({
+      userId: user._id,
+      accessToken,
+      refreshToken,
+      accessTokenValidUntil: new Date(Date.now() + 15 * 60 * 1000),
+      refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+
+    await newSession.save();
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -65,7 +75,7 @@ export const refreshSession = async (req, res, next) => {
     res.cookie('refreshToken', newTokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 30 * 24 * 60 * 60 * 1000, 
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     res.json({ accessToken: newTokens.accessToken });

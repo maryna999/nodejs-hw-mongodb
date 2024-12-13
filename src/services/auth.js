@@ -47,11 +47,11 @@ export const authenticateUser = async (email, password) => {
 
 export const generateTokens = (user) => {
   const accessToken = `${user._id}_${Date.now() + 15 * 60 * 1000}`;
+
   const refreshToken = `${user._id}_${Date.now() + 30 * 24 * 60 * 60 * 1000}`;
 
   return { accessToken, refreshToken };
 };
-
 export const refreshSessionService = async (userId) => {
   await Session.deleteMany({ userId });
 
@@ -62,7 +62,7 @@ export const refreshSessionService = async (userId) => {
     accessToken,
     refreshToken,
     accessTokenValidUntil: new Date(Date.now() + 15 * 60 * 1000),
-    refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 
+    refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   });
 
   await newSession.save();
