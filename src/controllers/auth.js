@@ -3,7 +3,6 @@ import {
   registerUser,
   authenticateUser,
   generateTokens,
-  logoutSessionService,
 } from '../services/auth.js';
 import { Session } from '../db/models/session.js';
 
@@ -66,6 +65,28 @@ export const login = async (req, res, next) => {
   }
 };
 
+export const logout = async (req, res, next) => {
+  try {
+    const sessionId = req.session._id;
+
+    if (!sessionId) {
+      throw createHttpError(400, 'Refresh token is missing');
+    }
+
+    const deletedSession = await Session.findByIdAndDelete(sessionId);
+
+    if (!deletedSession) {
+      throw createHttpError(404, 'Session not found');
+    }
+
+    res.clearCookie('refreshToken');
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const refreshSession = async (req, res, next) => {
   try {
     console.log('Session in req:', req.session);
@@ -89,37 +110,12 @@ export const refreshSession = async (req, res, next) => {
     res.cookie('refreshToken', newTokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 днів
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     res.json({ accessToken: newTokens.accessToken });
   } catch (error) {
     console.error('Error in refreshSession:', error);
-    next(error);
-  }
-};
-
-export const logout = async (req, res, next) => {
-  try {
-    const refreshToken = req.cookies.refreshToken;
-
-    if (!refreshToken) {
-      throw createHttpError(400, 'Refresh token is missing');
-    }
-
-    const session = await Session.findOne({ refreshToken });
-
-    if (!session) {
-      throw createHttpError(404, 'Session not found');
-    }
-
-    await logoutSessionService(refreshToken);
-    await Session.findByIdAndDelete(session._id);
-
-    res.clearCookie('refreshToken');
-
-    res.status(204).send();
-  } catch (error) {
     next(error);
   }
 };
