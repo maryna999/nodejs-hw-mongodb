@@ -67,20 +67,19 @@ export const login = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
-    const sessionId = req.session._id;
+    const refreshToken = req.cookies.refreshToken;
 
-    if (!sessionId) {
+    if (!refreshToken) {
       throw createHttpError(400, 'Refresh token is missing');
     }
 
-    const deletedSession = await Session.findByIdAndDelete(sessionId);
+    const deletedSession = await Session.findOneAndDelete({ refreshToken });
 
     if (!deletedSession) {
       throw createHttpError(404, 'Session not found');
     }
 
     res.clearCookie('refreshToken');
-
     res.status(204).send();
   } catch (error) {
     next(error);
@@ -89,33 +88,34 @@ export const logout = async (req, res, next) => {
 
 export const refreshSession = async (req, res, next) => {
   try {
-    console.log('Session in req:', req.session);
-
     const sessionId = req.session._id;
 
     if (!sessionId) {
       throw createHttpError(400, 'Session ID is missing');
     }
 
-    const deletedSession = await Session.findByIdAndDelete(sessionId);
-    console.log('Deleted session:', deletedSession);
+    const session = await Session.findById(sessionId);
 
-    if (!deletedSession) {
+    if (!session) {
       throw createHttpError(404, 'Session not found');
     }
 
-    const newTokens = generateTokens({ _id: req.session.userId });
-    console.log('Generated tokens:', newTokens);
+    if (new Date() > session.refreshTokenValidUntil) {
+      throw createHttpError(401, 'Refresh token is expired');
+    }
 
-    res.cookie('refreshToken', newTokens.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+    const newAccessToken = generateTokens({ _id: session.userId }).accessToken;
+
+    session.accessToken = newAccessToken;
+    session.accessTokenValidUntil = new Date(Date.now() + 15 * 60 * 1000);
+    await session.save();
+
+    res.status(200).json({
+      status: 200,
+      message: 'Successfully refreshed a session!',
+      data: { accessToken: newAccessToken },
     });
-
-    res.json({ accessToken: newTokens.accessToken });
   } catch (error) {
-    console.error('Error in refreshSession:', error);
     next(error);
   }
 };

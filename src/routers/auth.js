@@ -4,6 +4,7 @@ import { validateBody } from '../middlewares/validateBody.js';
 import { registerSchema } from '../validation/auth.js';
 import { login, refreshSession, logout } from '../controllers/auth.js';
 import { validateCookies } from '../middlewares/validateCookies.js';
+import { validateRefreshToken } from '../middlewares/validateRefreshToken.js';
 
 const router = express.Router();
 
@@ -39,8 +40,7 @@ router.post(
   login,
 );
 
-router.post('/refresh', validateCookies, refreshSession);
-
-router.post('/logout', validateCookies, logout);
+router.post('/logout', validateRefreshToken, logout);
+router.post('/refresh', validateRefreshToken, refreshSession);
 
 export default router;
