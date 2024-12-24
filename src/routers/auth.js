@@ -3,7 +3,6 @@ import { registerUser } from '../services/auth.js';
 import { validateBody } from '../middlewares/validateBody.js';
 import { registerSchema } from '../validation/auth.js';
 import { login, refreshSession, logout } from '../controllers/auth.js';
-import { validateCookies } from '../middlewares/validateCookies.js';
 import { validateRefreshToken } from '../middlewares/validateRefreshToken.js';
 
 const router = express.Router();

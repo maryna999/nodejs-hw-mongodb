@@ -6,6 +6,7 @@ export const createContactInDB = async ({
   email,
   isFavorite,
   contactType,
+  userId,
 }) => {
   const newContact = new ContactsCollection({
     name,
@@ -13,6 +14,7 @@ export const createContactInDB = async ({
     email,
     isFavorite,
     contactType,
+    userId,
   });
 
   await newContact.save();
