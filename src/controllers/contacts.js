@@ -109,11 +109,20 @@ export const updateContact = async (req, res, next) => {
     const updateData = req.body;
 
     const contact = await getContactById(contactId, userId);
+
     if (!contact) {
-      throw createError(404, 'Contact not found');
+      throw createError(404, 'Contact not found or access denied');
     }
 
-    const updatedContact = await updateContactInDB(contactId, updateData);
+    console.log('Update Data:', updateData);
+    console.log('Contact ID:', contactId);
+    console.log('User ID:', userId);
+
+    const updatedContact = await ContactsCollection.findByIdAndUpdate(
+      contactId,
+      updateData,
+      { new: true },
+    );
 
     res.status(200).json({
       status: 200,

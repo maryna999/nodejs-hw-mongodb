@@ -1,7 +1,7 @@
 import express from 'express';
 import { registerUser } from '../services/auth.js';
 import { validateBody } from '../middlewares/validateBody.js';
-import { registerSchema } from '../validation/auth.js';
+import { registerSchema, loginSchema } from '../validation/auth.js';
 import { login, refreshSession, logout } from '../controllers/auth.js';
 import { validateRefreshToken } from '../middlewares/validateRefreshToken.js';
 
@@ -30,14 +30,7 @@ router.post(
   },
 );
 
-router.post(
-  '/login',
-  validateBody({
-    email: { isEmail: true, errorMessage: 'Invalid email format' },
-    password: { notEmpty: true, errorMessage: 'Password is required' },
-  }),
-  login,
-);
+router.post('/login', validateBody(loginSchema), login);
 
 router.post('/logout', validateRefreshToken, logout);
 router.post('/refresh', validateRefreshToken, refreshSession);
