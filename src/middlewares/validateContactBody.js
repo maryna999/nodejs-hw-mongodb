@@ -15,6 +15,7 @@ export const validateContactBody = [
     .isIn(['work', 'personal', 'home'])
     .withMessage('Contact type must be one of: work, personal, home'),
   (req, res, next) => {
+    console.log('Validating body:', req.body);
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {

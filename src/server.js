@@ -34,8 +34,6 @@ export const setupServer = async () => {
 
   app.use(errorHandler);
 
-  app.use('/auth', authRouter);
-
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
