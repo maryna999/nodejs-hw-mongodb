@@ -6,6 +6,7 @@ import {
   deleteContactFromDB,
 } from '../services/contacts.js';
 import { ContactsCollection } from '../db/models/contact.js';
+import { uploadImage } from '../utils/cloudinary.js';
 
 export const createContact = async (req, res, next) => {
   try {
@@ -19,6 +20,12 @@ export const createContact = async (req, res, next) => {
       );
     }
 
+    let photoUrl = '';
+
+    if (req.file) {
+      photoUrl = await uploadImage(req.file.path);
+    }
+
     const newContact = await createContactInDB({
       name,
       phoneNumber,
@@ -26,6 +33,7 @@ export const createContact = async (req, res, next) => {
       isFavorite,
       contactType,
       userId,
+      photo: photoUrl,
     });
 
     res.status(201).json({
@@ -107,6 +115,11 @@ export const updateContact = async (req, res, next) => {
     const { contactId } = req.params;
     const userId = req.user._id;
     const updateData = req.body;
+
+    if (req.file) {
+      const photoUrl = await uploadImage(req.file.path);
+      updateData.photo = photoUrl;
+    }
 
     const contact = await getContactById(contactId, userId);
     if (!contact) {
