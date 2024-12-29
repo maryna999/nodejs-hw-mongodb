@@ -144,8 +144,6 @@ export const sendResetEmail = async (req, res, next) => {
   }
 
   try {
-    console.log('SMTP_HOST:', process.env.SMTP_HOST); // Логування SMTP_HOST
-    console.log('SMTP_PORT:', process.env.SMTP_PORT);
     const user = await User.findOne({ email });
     if (!user) {
       throw createHttpError(404, 'User not found!');
@@ -173,6 +171,42 @@ export const sendResetEmail = async (req, res, next) => {
     });
   } catch (error) {
     console.error('Error in sendResetEmail:', error);
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+    console.log(token, password);
+
+    if (!token) {
+      throw createHttpError(400, 'Token is required');
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      throw createHttpError(401, 'Token is expired or invalid.');
+    }
+
+    const user = await User.findOne({ email: decoded.email });
+    if (!user) {
+      throw createHttpError(404, 'User not found!');
+    }
+
+    user.password = password;
+    await user.save();
+
+    await Session.deleteMany({ userId: user._id });
+
+    res.status(200).json({
+      status: 200,
+      message: 'Password has been successfully reset.',
+      data: {},
+    });
+  } catch (error) {
     next(error);
   }
 };

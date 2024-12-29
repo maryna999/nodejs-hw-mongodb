@@ -1,12 +1,17 @@
 import express from 'express';
 import { registerUser } from '../services/auth.js';
 import { validateBody } from '../middlewares/validateBody.js';
-import { registerSchema, loginSchema } from '../validation/auth.js';
+import {
+  registerSchema,
+  loginSchema,
+  resetPwdSchema,
+} from '../validation/auth.js';
 import {
   login,
   refreshSession,
   logout,
   sendResetEmail,
+  resetPassword,
 } from '../controllers/auth.js';
 import { validateRefreshToken } from '../middlewares/validateRefreshToken.js';
 
@@ -38,5 +43,6 @@ router.post('/login', validateBody(loginSchema), login);
 router.post('/logout', validateRefreshToken, logout);
 router.post('/refresh', validateRefreshToken, refreshSession);
 router.post('/send-reset-email', sendResetEmail);
+router.post('/reset-pwd', validateBody(resetPwdSchema), resetPassword);
 
 export default router;
