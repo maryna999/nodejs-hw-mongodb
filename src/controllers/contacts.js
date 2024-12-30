@@ -10,16 +10,10 @@ import { uploadImage } from '../utils/cloudinary.js';
 import { updateContactSchema } from '../validation/contactSchemas.js';
 
 export const createContact = async (req, res, next) => {
-  console.log('Create contact endpoint hit');
   try {
-    console.log('Request body:', req.body);
-    console.log('Request file:', req.file);
-
     const { name, phoneNumber, email, isFavorite, contactType, photo } =
       req.body;
     const userId = req.user._id;
-
-    console.log('User ID:', userId);
 
     if (!name || !phoneNumber || !contactType) {
       throw createError(
@@ -30,12 +24,9 @@ export const createContact = async (req, res, next) => {
 
     let photoUrl = '';
     if (req.file) {
-      console.log('Uploading image...');
       photoUrl = await uploadImage(req.file.path);
-      console.log('Uploaded image URL:', photoUrl);
     } else if (photo) {
       photoUrl = photo;
-      console.log('Using provided image URL:', photoUrl);
     }
 
     const newContact = await createContactInDB({
@@ -47,8 +38,6 @@ export const createContact = async (req, res, next) => {
       userId,
       photo: photoUrl,
     });
-
-    console.log('New contact created:', newContact);
 
     res.status(201).json({
       status: 201,
@@ -72,14 +61,10 @@ export const getContacts = async (req, res, next) => {
       isFavorite,
     } = req.query;
 
-    console.log('Fetching contacts with query params:', req.query);
-
     const userId = req.user._id;
     const filter = { userId };
     if (type) filter.contactType = type;
     if (isFavorite !== undefined) filter.isFavorite = isFavorite === 'true';
-
-    console.log('Filter:', filter);
 
     const order = sortOrder.toLowerCase() === 'desc' ? -1 : 1;
     const skip = (page - 1) * perPage;
@@ -89,8 +74,6 @@ export const getContacts = async (req, res, next) => {
       .sort({ [sortBy]: order })
       .skip(skip)
       .limit(Number(perPage));
-
-    console.log('Fetched contacts:', contacts);
 
     res.status(200).json({
       status: 200,
@@ -141,13 +124,12 @@ export const updateContact = async (req, res, next) => {
     });
   }
 
-  const { contactId } = req.params;
-  const updateData = req.body;
-
   try {
-    const contact = await getContactById(contactId);
-    if (!contact) {
-      return res.status(404).json({ message: 'Contact not found' });
+    const { contactId } = req.params;
+    const updateData = { ...req.body };
+
+    if (req.file) {
+      updateData.photo = await uploadImage(req.file.path);
     }
 
     const updatedContact = await updateContactInDB(contactId, updateData);

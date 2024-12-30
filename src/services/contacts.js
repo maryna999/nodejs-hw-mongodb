@@ -7,17 +7,9 @@ export const createContactInDB = async ({
   isFavorite,
   contactType,
   userId,
+  photo,
 }) => {
   try {
-    console.log('Creating a new contact with data:', {
-      name,
-      phoneNumber,
-      email,
-      isFavorite,
-      contactType,
-      userId,
-    });
-
     const newContact = new ContactsCollection({
       name,
       phoneNumber,
@@ -25,11 +17,11 @@ export const createContactInDB = async ({
       isFavorite,
       contactType,
       userId,
+      photo,
     });
 
     await newContact.save();
 
-    console.log('New contact created successfully:', newContact);
     return newContact;
   } catch (error) {
     console.error('Error while creating contact:', error);
@@ -39,15 +31,12 @@ export const createContactInDB = async ({
 
 export const updateContactInDB = async (contactId, updateData) => {
   try {
-    console.log(`Updating contact ${contactId} with data:`, updateData);
-
     const updatedContact = await ContactsCollection.findByIdAndUpdate(
       contactId,
-      { ...updateData },
+      updateData ,
       { new: true },
     );
 
-    console.log('Updated contact:', updatedContact);
     return updatedContact;
   } catch (error) {
     console.error('Error while updating contact:', error);
