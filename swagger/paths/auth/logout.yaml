@@ -1,0 +1,11 @@
+summary: User logout
+description: |
+  Logs out the user by removing the refresh token from the system (e.g., deleting the refresh token from cookies).
+operationId: logoutUser
+tags:
+  - Auth
+responses:
+  '200':
+    description: Successful logout.
+  '500':
+    description: Internal server error.

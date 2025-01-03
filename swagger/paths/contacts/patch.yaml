@@ -1,0 +1,40 @@
+summary: Update a contact
+description: |
+  Updates the details of a specific contact. Only fields that are provided in the request body will be updated.
+operationId: updateContact
+tags:
+  - Contacts
+security:
+  - bearerAuth: []
+parameters:
+  - name: contactId
+    in: path
+    required: true
+    description: The unique identifier of the contact.
+    schema:
+      type: string
+requestBody:
+  required: true
+  description: The fields to update in the contact.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+          email:
+            type: string
+          phone:
+            type: string
+responses:
+  '200':
+    description: The contact was successfully updated.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/Contact.yaml'
+  '400':
+    description: Bad request, invalid data.
+  '404':
+    description: Contact not found.
