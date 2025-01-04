@@ -1,34 +1,37 @@
-summary: Refresh access token
-description: |
-  This endpoint allows the user to refresh their access token using a valid refresh token.
-  The user must provide the refresh token stored in cookies.
-operationId: refreshToken
-tags:
-  - Auth
-requestBody:
-  required: true
-  content:
-    application/json:
-      schema:
-        type: object
-        properties:
-          refreshToken:
-            type: string
-            description: The refresh token.
-responses:
-  '200':
-    description: Successful refresh, returns a new access token.
+post:
+  summary: Refresh access token
+  description: |
+    This endpoint allows the user to refresh their access token using a valid refresh token.
+    The user must provide the refresh token stored in cookies.
+  operationId: refreshToken
+  tags:
+    - Auth
+  requestBody:
+    required: true
     content:
       application/json:
         schema:
           type: object
           properties:
-            accessToken:
+            refreshToken:
               type: string
-              description: The new access token (JWT).
-  '400':
-    description: Bad request, invalid refresh token.
-  '401':
-    description: Unauthorized, invalid or expired refresh token.
-  '500':
-    description: Internal server error.
+              description: The refresh token.
+  responses:
+    '200':
+      description: Successful refresh, returns a new access token.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              accessToken:
+                type: string
+                description: The new access token (JWT).
+    '400':
+      description: Bad request, invalid refresh token.
+    '401':
+      description: Unauthorized, invalid or expired refresh token.
+    '500':
+      description: Internal server error.
+  security:
+    - bearerAuth: []

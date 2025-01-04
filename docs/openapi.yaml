@@ -16,12 +16,11 @@ servers:
   - url: https://contacts-app-1hod.onrender.com
 paths:
   /auth/login:
-    $ref: ../swagger/components/auth/login.yaml
+    $ref: ../swagger/paths/auth/login.yaml
   /auth/refresh:
-    $ref: ../swagger/components/auth/refresh.yaml
+    $ref: ../swagger/paths/auth/refresh.yaml
   /auth/logout:
-    $ref: ../swagger/components/auth/logout.yaml
-  /contacts:
+    $ref: ../swagger/paths/auth/logout.yaml
     get:
       $ref: '../swagger/paths/contacts/get.yaml'
     post:
