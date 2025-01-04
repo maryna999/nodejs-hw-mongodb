@@ -1,0 +1,10 @@
+post:
+  summary: Reset password
+  operationId: resetPassword
+  tags:
+    - Auth
+  responses:
+    '200':
+      description: Password reset successfully.
+    '500':
+      description: Internal server error.

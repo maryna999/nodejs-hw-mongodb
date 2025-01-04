@@ -1,0 +1,14 @@
+post:
+  summary: Register user
+  operationId: registerUser
+  security:
+    - bearerAuth: []
+  tags:
+    - Auth
+  responses:
+    '201':
+      description: User registered successfully.
+    '400':
+      description: Bad request.
+    '500':
+      description: Internal server error.

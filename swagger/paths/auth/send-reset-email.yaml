@@ -1,0 +1,10 @@
+post:
+  summary: Request email change password
+  operationId: sendResetEmail
+  tags:
+    - Auth
+  responses:
+    '200':
+      description: Reset email sent successfully.
+    '500':
+      description: Internal server error.

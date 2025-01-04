@@ -11,7 +11,7 @@ import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { dirname, join } from 'path';
 
 dotenv.config();
 
@@ -28,8 +28,11 @@ export const setupServer = async () => {
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
-  const swaggerDocument = YAML.load(`${__dirname}/../docs/openapi.yaml`);
-  console.log(swaggerDocument); // Перевірте, чи виводиться правильний об'єкт
+
+  const swaggerPath = join(__dirname, '../swagger');
+  app.use('/swagger', express.static(swaggerPath));
+
+  const swaggerDocument = YAML.load(join(__dirname, '../docs/openapi.yaml'));
 
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

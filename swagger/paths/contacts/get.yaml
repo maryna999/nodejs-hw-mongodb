@@ -1,36 +1,105 @@
-summary: Get all contacts
-description: |
-  Retrieves a list of all contacts. You can filter and paginate the contacts by using query parameters.
 operationId: getContacts
+summary: Get all contacts
 tags:
   - Contacts
-security:
-  - bearerAuth: []
 parameters:
   - name: page
     in: query
+    description: Page number for pagination
     required: false
-    description: The page number to retrieve.
     schema:
       type: integer
-      example: 1
-  - name: limit
+      default: 1
+  - name: perPage
     in: query
+    description: Number of elements per page
     required: false
-    description: The number of contacts per page.
     schema:
       type: integer
-      example: 10
+      default: 5
+  - name: sortBy
+    in: query
+    description: The field to sort by
+    required: false
+    schema:
+      type: string
+      enum:
+        - _id
+        - name
+        - phoneNumber
+        - email
+        - isFavourite
+        - contactType
+        - createdAt
+        - updatedAt
+  - name: sortOrder
+    in: query
+    description: Sort order. Use asc for ascending or desc for descending
+    required: false
+    schema:
+      type: string
+      enum:
+        - asc
+        - desc
+      default: asc
+  - name: contactType
+    in: query
+    description: Contact type to filter
+    required: false
+    schema:
+      type: string
+      enum:
+        - work
+        - home
+        - personal
+      default: personal
+  - name: isFavourite
+    in: query
+    description: Filter by favorite contacts
+    required: false
+    schema:
+      type: boolean
 responses:
   '200':
-    description: A list of contacts.
+    description: Successfully found contacts!
     content:
       application/json:
-        schema:
-          type: array
-          items:
-            $ref: '../../components/schemas/Contact.yaml'
+        example:
+          status: 200
+          message: Successfully found contacts!
+          data:
+            data:
+              - _id: '675f50e84f6f4031142594d9'
+                name: 'John Doe'
+                phoneNumber: 380989987458
+                email: 'trembo@mail.com'
+                isFavourite: false
+                contactType: 'work'
+                userId: '675ef13b75c82ac674539222'
+                photo: 'https://res.cloudinary.com/dhm3gmrld/image/upload/v1734300378/aoftrtoi03rnln8udxl1.webp'
+                createdAt: '2024-05-08T16:12:14.954182'
+                updatedAt: '2024-11-30T17:19:41.576+00:00'
+          page: 1
+          perPage: 5
+          totalItems: 10
+          totalPages: 4
+          hasNextPage: false
+          hasPreviousPage: true
   '401':
-    description: Unauthorized.
+    description: Unauthorized error
+    content:
+      application/json:
+        example:
+          status: 401
+          message: UnauthorizedError
+          data:
+            message: 'Session not found.'
   '500':
-    description: Internal server error.
+    description: Server error
+    content:
+      application/json:
+        example:
+          status: 500
+          message: 'Something went wrong'
+          data:
+            message: 'Something went wrong'
