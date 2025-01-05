@@ -9,9 +9,8 @@ import contactsRouter from './routers/contacts.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import swaggerUi from 'swagger-ui-express';
-import YAML from 'yamljs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
@@ -26,15 +25,13 @@ export const setupServer = async () => {
   app.use(pino({ transport: { target: 'pino-pretty' } }));
   app.use(cookieParser());
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
+  const SWAGGER_PATH = path.join(process.cwd(), 'docs', 'swagger.json');
 
-  const swaggerPath = join(__dirname, '../swagger');
-  app.use('/swagger', express.static(swaggerPath));
+  const swaggerDoc = JSON.parse(fs.readFileSync(SWAGGER_PATH).toString());
 
-  const swaggerDocument = YAML.load(join(__dirname, '../docs/openapi.yaml'));
+  const swaggerDocument = [...swaggerUi.serve, swaggerUi.setup(swaggerDoc)];
 
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  app.use('/api-docs', swaggerDocument);
 
   app.use('/auth', authRouter);
 
